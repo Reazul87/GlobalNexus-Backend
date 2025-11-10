@@ -26,10 +26,16 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
 
     const productsDB = client.db("ProductsDB");
     const productsCollection = productsDB.collection("Products");
+
+    app.get("/latest-products", async (req, res) => {
+      const cursor = productsCollection.find().sort({ createdAt: -1 }).limit(6);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().toArray();
