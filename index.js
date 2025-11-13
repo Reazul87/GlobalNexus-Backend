@@ -157,6 +157,12 @@ async function run() {
       res.send({ success: true, result });
     }); ///Complete
 
+    app.delete("/export-product/:id", verifyIdToken,async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await productsCollection.deleteOne(query);
+      res.send(result);
+    }); ///Complete
 
 
     // Send a ping to confirm a successful connection
