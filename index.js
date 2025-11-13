@@ -1,4 +1,7 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const serviceAccount = require("./firebase-adminSdk.json");
+const admin = require("firebase-admin");
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -23,30 +26,43 @@ const client = new MongoClient(uri, {
   },
 });
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+const verifyIdToken = async (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.status(401).send({ message: "Unauthorized Access !" });
+  }
+  const token = authorization.split(" ")[1];
+
+  try {
+    const decode = await admin.auth().verifyIdToken(token);
+    req.token_email = decode.email;
+    next();
+  } catch (error) {
+    res.status(401).send({
+      message: "Token not verified !",
+      statement: "Unauthorized Access ",
+    });
+  }
+};
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const productsDB = client.db("ProductsDB");
     const productsCollection = productsDB.collection("Products");
+    const importsCollection = productsDB.collection("Imports");
 
     app.get("/latest-products", async (req, res) => {
       const cursor = productsCollection.find().sort({ createdAt: -1 }).limit(6);
       const result = await cursor.toArray();
       res.send(result);
-    });
-
-    app.get("/products", async (req, res) => {
-      const result = await productsCollection.find().toArray();
-      res.send(result);
-    });
-
-    app.post("/products", async (req, res) => {
-      const product = req.body;
-      const result = await productsCollection.insertOne(product);
-      res.send(result);
-    });
+    }); ///Complete
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
