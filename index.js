@@ -120,6 +120,30 @@ async function run() {
       res.send({ Success: true, result });
     });
 
+    app.post("/import-product/:id", verifyIdToken,async (req, res) => {
+      const importProduct = req.body;
+      const product_id = req.params.id;
+      const import_qty = Number(importProduct.import_quantity);
+      const query = { _id: new ObjectId(product_id) };
+      const product = await productsCollection.findOne(query);
+
+      if (typeof product.available_quantity === "string") {
+        const quantity = Number(product.available_quantity);
+        await productsCollection.updateOne(query, {
+          $set: { available_quantity: quantity },
+        });
+      }
+
+      const update = {
+        $inc: {
+          available_quantity: -import_qty,
+        },
+      };
+      const result = await importsCollection.insertOne(importProduct);
+      const updatedProduct = await productsCollection.updateOne(query, update);
+
+      res.send({ result, updatedProduct });
+    }); ///Complete
 
 
     // Send a ping to confirm a successful connection
