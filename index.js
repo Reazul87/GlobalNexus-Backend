@@ -109,6 +109,18 @@ async function run() {
       res.send(result);
     }); ///Complete
 
+    app.patch("/update-export/:id", verifyIdToken, async (req, res) => {
+      const product_id = req.params.id;
+      const updated = req.body;
+      const query = { _id: new ObjectId(product_id) };
+
+      const update = { $set: { ...updated } };
+      const options = {};
+      const result = await productsCollection.updateOne(query, update, options);
+      res.send({ Success: true, result });
+    });
+
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
