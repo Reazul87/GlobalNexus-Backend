@@ -82,7 +82,18 @@ async function run() {
       res.send(result);
     }); ///Complete
 
-  
+    app.get("/my-imports", verifyIdToken, async (req, res) => {
+      const imported = req.query.email;
+      const email = req.token_email;
+      if (imported !== email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      const result = await importsCollection
+        .find({ imported_by: imported })
+        .toArray();
+      res.send(result);
+    }); ///Complete
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
