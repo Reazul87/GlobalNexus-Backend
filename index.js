@@ -164,6 +164,12 @@ async function run() {
       res.send(result);
     }); ///Complete
 
+    app.delete("/import-product/:id", verifyIdToken ,async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await importsCollection.deleteOne(query);
+      res.send(result);
+    }); ///Complete
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
