@@ -101,6 +101,14 @@ async function run() {
       res.send(result);
     }); ///Complete
 
+    app.get("/search", async (req, res) => {
+      const searching = req.query.name;
+      const result = await productsCollection
+        .find({ product_name: { $regex: searching, $options: "i" } })
+        .toArray();
+      res.send(result);
+    }); ///Complete
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
