@@ -69,6 +69,20 @@ async function run() {
       res.send(result);
     }); ///Complete
 
+    app.get("/my-exports", verifyIdToken, async (req, res) => {
+      const exported = req.query.email;
+      const email = req.token_email;
+
+      if (exported !== email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      const result = await productsCollection
+        .find({ exported_by: exported })
+        .toArray();
+      res.send(result);
+    }); ///Complete
+
+  
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
