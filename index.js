@@ -145,6 +145,19 @@ async function run() {
       res.send({ result, updatedProduct });
     }); ///Complete
 
+    app.post("/products", verifyIdToken, async (req, res) => {
+      const product = req.body;
+      const exported = req.headers.email;
+      const email = req.token_email;
+
+      if (exported !== email) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      const result = await productsCollection.insertOne(product);
+      res.send({ success: true, result });
+    }); ///Complete
+
+
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
